@@ -42,6 +42,16 @@ public interface InfoDAO {
 
 	
 
-	
+	ApplyUListVO getApplyUser(ApplyUListVO aulistVO) throws Exception; //1
+    List<ApplyUListVO> getApplyUserList(String teamid) throws Exception; //2
+    List<ApplyUListVO> getApplyTeamGender(String teamid) throws Exception; //3
+    
+    List<ApplyUListVO> getApplyTeamUserCount(String teamid) throws Exception; //4
+    List<ApplyUListVO> getApplyAllTeamUserCount() throws Exception; //5
+    
+    List<ApplyTGenreVO> getApplyTeamGenre(String teamid) throws Exception; //6 
+    List<ApplyTGenreVO> getApplyAllGenre() throws Exception; //7
+
+
 
 }
