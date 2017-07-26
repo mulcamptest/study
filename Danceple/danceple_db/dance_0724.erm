@@ -153,7 +153,7 @@
 			</connections>
 			<display>false</display>
 			<creation_date>2017-07-14 14:03:19</creation_date>
-			<updated_date>2017-07-24 13:40:42</updated_date>
+			<updated_date>2017-07-24 14:32:50</updated_date>
 			<model_property>
 				<name>프로젝트명</name>
 				<value></value>
@@ -1878,8 +1878,8 @@
 						<target_yp>-1</target_yp>
 						<bendpoint>
 							<relative>false</relative>
-							<x>611</x>
-							<y>283</y>
+							<x>495</x>
+							<y>272</y>
 						</bendpoint>
 						<color>
 							<r>0</r>
@@ -1927,8 +1927,8 @@
 						<target_yp>-1</target_yp>
 						<bendpoint>
 							<relative>false</relative>
-							<x>495</x>
-							<y>272</y>
+							<x>611</x>
+							<y>283</y>
 						</bendpoint>
 						<color>
 							<r>0</r>
@@ -2123,7 +2123,7 @@
 				<normal_column>
 					<id>29</id>
 					<referenced_column>23</referenced_column>
-					<relation>4</relation>
+					<relation>6</relation>
 					<description></description>
 					<unique_key_name></unique_key_name>
 					<logical_name>genre2</logical_name>
@@ -2157,7 +2157,7 @@
 				<normal_column>
 					<id>30</id>
 					<referenced_column>23</referenced_column>
-					<relation>6</relation>
+					<relation>4</relation>
 					<description></description>
 					<unique_key_name></unique_key_name>
 					<logical_name>genre3</logical_name>

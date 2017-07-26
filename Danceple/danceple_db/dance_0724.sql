@@ -264,18 +264,12 @@ insert into tb_genre (genreid, genrename, genreurl)values (12,'Waacking Dance','
 
 select * from tb_genre;
 
-insert into tb_project (projectno, projecttitle, projectdate, projectdesc)
-values(seq_project.nextval, '가요제', '2017.07.22', '홍대 비보이 공연장');
 
-insert into tb_project (projectno, projecttitle, projectdate, projectdesc)
-values(seq_project.nextval, '사운스퍼레이드', '2017.08.06', '난지 캠핑장');
 
-select * from TB_PROJECT;
-
-insert into tb_season(seasonid,snmonth,startdate,enddate,projectno) 
-values(1,'6','2017/06/12','2017/06/24','1');
-insert into tb_season(seasonid,snmonth,startdate,enddate,projectno) 
-values(2,'7','2017/07/17','2017/07/28','2');
+insert into tb_season(seasonid,snmonth,startdate,enddate,projectdate, projectdesc) 
+values(1,'6','2017/06/12','2017/06/24','2017/06/25','가나다라마바사아자차카타파하');
+insert into tb_season(seasonid,snmonth,startdate,enddate,projectdate, projectdesc) 
+values(2,'7','2017/07/17','2017/07/28','2017/07/28','CRUWD 팀의 미니 프로젝입니다.');
 
 select * from tb_season;
 
@@ -304,38 +298,5 @@ insert into tb_grade (gradeid, gradename) values(4, '헬퍼');
 
 select * from tb_grade;
 
-begin
-for i in 1..25 loop
-insert into tb_user(userid, name, phone, email, gradeid, userpwd,gender,penalty,birthday,imgurl)
-values ('user'||i, 'Tester'||i, '01011111111','user'||i||'@naver.com','1','1234', 'man','0','20170724','#');
-end loop;
-end;
-/
-
-begin
-for i in 26..50 loop
-insert into tb_user(userid, name, phone, email, gradeid, userpwd,gender,penalty,birthday,imgurl)
-values ('user'||i, 'Tester'||i, '01022222222','user'||i||'@naver.com','2','1234', 'woman','0','20170724','#');
-end loop;
-end;
-/
-select * from tb_user;
 
 
-declare
-v_j number;
-v_k number;
-v_l number;
-v_teamid varchar2(6);
-begin 
-for i in 41..50 loop
-v_j:=mod(trunc((DBMS_RANDOM.value * 100),0),14);
-v_k:=mod((v_j+1),14);
-v_l:=mod((v_k*13),14);
-v_teamid:=(mod(i,8)+1);
-    insert into tb_apply (userid, teamid, genre1, genre2, genre3, seasonid, teamother) values 
-                         ('user'||i, '00000'||v_teamid, v_j,v_k,v_l,'2','#');
-end loop;
-end;
-/
-select * from tb_apply;
