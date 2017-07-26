@@ -1,0 +1,231 @@
+목차
+getApplyUserList(teamid)           return (RANK, NAME, GRADEID, GRADENAME, GENDER) ApplyUListVO
+getApplyTeamGender(teamid)         return (TEAMNAME, GENDER, COUNT) ApplyUListVO
+getApplyTeamUserCount(teamid)      return (TEAMNAME, GRADEID, GRADENAME, GENDER, COUNT) ApplyUListVO
+getApplyAllTeamUserCount()         return (TEAMNAME, GRADEID, GRADENAME, GENDER, COUNT) ApplyUListVO
+getApplyTeamGenre(teamid)          return (RANK, GENRE, GENRENAME, COUNT, GENREURL) ApplyTGenreVO
+getApplyAllGenre()                 return (RANK, TEAMID, TEAMNAME, GENRENAME, COUNT) ApplyTGenreVO
+getApplyUser(ApplyUListVO)         return (RANK, GRADENAME)  ApplyUListVO
+
+=======================================================================================
+한 팀 팀원 리스트(순위, 등급)   --- 우선순위 부분 수정 요함.
+getApplyUser(Teamid, Userid)
+=======================================================================================
+select rank, gradename
+from(
+select 
+rank() over(partition by G.gradeid, U.gender order by U.name) as rank,
+U.name, G.gradeid, G.gradeName, U.gender
+from tb_Apply A, tb_Grade G, tb_User U
+where A.teamid = '000001'
+and   A.userid = U.userid
+and   U.gradeid = G.gradeid
+ORDER BY G.gradeid, U.gender)
+where name= 'Tester8';
+
+
+결과)  현재 네임으로 비교 함!!!! 
+  RANK GRADENAME
+------ -----------
+     2 신규
+
+=======================================================================================
+한 팀 팀원 리스트(순위, 회원 이름, 등급, 성별)   --- 우선순위 부분 수정 요함.
+getApplyUserList(Teamid)
+=======================================================================================
+
+select 
+rank() over(partition by G.gradeid, U.gender order by U.name) as rank,
+U.name, G.gradeid, G.gradeName, U.gender
+from tb_Apply A, tb_Grade G, tb_User U
+where A.teamid = '000001'
+and   A.userid = U.userid
+and   U.gradeid = G.gradeid
+ORDER BY G.gradeid, U.gender;
+
+
+결과)  현재 네임으로 비교 함!!!! 
+  RANK NAME                    GRADEID GRADENAME              GENDER
+------ -------------------- ---------- ---------------------- ----------
+     1 Tester16                      1 신규                   man
+     2 Tester8                       1 신규                   man
+     1 Tester32                      1 신규                   woman
+     2 Tester40                      1 신규                   woman
+     3 Tester48                      1 신규                   woman
+     1 Tester24                      2 기존                   man
+
+=======================================================================================
+한 팀 성별 요약 (성별 / 카운트)
+getApplyGender(teamid)
+=======================================================================================
+select T.teamname, gender, count(*) as count
+from tb_apply A, tb_user U, tb_team T
+where A.userid = U.userid
+and A.teamid='000001'
+and A.teamid=T.teamid
+group by T.teamname, gender;
+
+결과)
+TEAMNAME                                 GENDER          COUNT
+---------------------------------------- ---------- ----------
+꿀토끼                                   man                 3
+꿀토끼                                   woman               3
+
+=======================================================================================
+한 팀 인원 요약 (팀이름, 등급(id/name), 성별, 카운트) rollup(등급,성별) 형식
+getApplyTeamUserCount(teamid)
+=======================================================================================
+
+ select T.teamname, U.gradeid, G.gradename, U.gender, count(*) count
+ from tb_apply A, tb_user U, tb_team T, tb_grade G
+ where A.userid = U.userid
+ and   A.teamid='000001'
+ and   A.teamid=T.teamid
+ and   U.gradeid=G.gradeid
+ group by rollup(T.teamname,U.gradeid,G.gradename, gender);
+
+결과)
+TEAMNAME                GRADEID GRADENAME              GENDER          COUNT
+-------------------- ---------- ---------------------- ---------- ----------
+꿀토끼                        1 신규                   man                 2
+꿀토끼                        1 신규                   woman               3
+꿀토끼                        1 신규                                       5
+꿀토끼                        1                                            5
+꿀토끼                        2 기존                   man                 1
+꿀토끼                        2 기존                                       1
+꿀토끼                        2                                            1
+꿀토끼                                                                     6
+                                                                           6
+
+=======================================================================================
+전체 팀 인원 요약 (팀명, 등급, 성별, 카운트) rollup(팀명,등급,성별) 형식
+getApplyAllTeamUserCount()
+=======================================================================================
+select U.teamname, A.gradeid, G.gradename, A.gender, count(*) count
+from (select A.teamid, name, gradeid, gender
+      from tb_apply A, tb_user U
+      where A.userid = U.userid
+      ORDER BY A.teamid) A , tb_team U, tb_grade G
+where A.teamid=U.teamid
+and   A.gradeid=G.gradeid
+group by rollup(U.teamname, A.gradeid, G.gradename, A.gender)
+order by 1;
+
+
+결과)
+TEAMNAME                GRADEID GRADENAME              GENDER          COUNT
+-------------------- ---------- ---------------------- ---------- ----------
+일단만나                      1 신규                   man                 2
+일단만나                      1 신규                                       2    : total
+일단만나                      1                                            2
+일단만나                      2 기존                   man                 1
+일단만나                      2 기존                   woman               3
+일단만나                      2 기존                                       4    : total
+일단만나                      2                                            4
+일단만나                                                                   6
+
+일루와                        1 신규                   man                 2
+일루와                        1 신규                                       2
+일루와                        1                                            2
+일루와                        2 기존                   man                 1
+일루와                        2 기존                   woman               3
+=======================================================================================
+한 팀 장르 요약 (RANK, GENRE, GENRENAME, COUNT, GENREURL)
+getApplyTeamGenre(teamid)
+=======================================================================================
+
+select rank() over(order by count desc) as rank,
+ UG.genre, G.genrename, UG.count , G.genreurl
+from (
+    select G.genre1 as genre, count(*) as count
+    from(
+            select genre1
+            from tb_apply A, tb_user U
+            where A.userid = U.userid
+            and A.teamid='000001'
+        union all
+            select genre2
+            from tb_apply A, tb_user U
+            where A.userid = U.userid
+            and A.teamid='000001'
+        union all
+            select genre3
+            from tb_apply A, tb_user U
+            where A.userid = U.userid
+            and A.teamid='000001'
+        ) G
+    group by genre1
+    order by count desc) UG, tb_genre G
+where UG.genre = G.genreid
+order by UG.count DESC;
+
+결과)
+      RANK GENRE      GENRENAME                 COUNT GENREURL
+---------- ---------- -------------------- ---------- ---------------------
+         1 3          K-pop Dance                   4 http://www.google.com
+         2 4          House Dance                   3 http://www.naver.com
+         3 0          Anything is OK!               2 http://www.naver.com
+         3 5          Urban Dance                   2 http://www.daum.net
+         3 10         B-boy Dance                   2 http://www.naver.com
+         6 6          Poppin Dance                  1 http://www.naver.com
+         6 8          Locking Dance                 1 http://www.naver.com
+         6 9          Hiphop Dance                  1 http://www.google.com
+         6 11         Soul Dance                    1 http://www.naver.com
+         6 2          Dab Dance                     1 http://www.naver.com
+
+=======================================================================================
+전체 팀 장르 요약 (RANK, TEAMID, TEAMNAME, GENRENAME, COUNT)
+getApplyGenre()
+=======================================================================================
+select 
+    rank() over(partition by F.teamid order by F.count DESC) as rank,
+    T.teamid,
+    T.teamname,
+    G.genrename,
+    F.count
+from(
+    select 
+        U.teamid, 
+        U.genre1 as genre, 
+        count(*) as count
+    from(
+            select teamid, genre1
+            from tb_apply A, tb_user U
+            where A.userid = U.userid
+        union all
+            select teamid, genre2
+            from tb_apply A, tb_user U
+            where A.userid = U.userid
+        union all
+            select teamid, genre3
+            from tb_apply A, tb_user U
+            where A.userid = U.userid
+        ) U 
+    group by U.teamid, U.genre1) F , 
+    tb_genre G, 
+    tb_team T
+where F.genre=G.genreid
+and   F.teamid=T.teamid;
+
+결과)
+      RANK TEAMID       TEAMNAME             GENRENAME                 COUNT
+---------- ------------ -------------------- -------------------- ----------
+         1 000001       꿀토끼               K-pop Dance                   4
+         2 000001       꿀토끼               House Dance                   3
+         3 000001       꿀토끼               B-boy Dance                   2
+         3 000001       꿀토끼               Anything is OK!               2
+         3 000001       꿀토끼               Urban Dance                   2
+         6 000001       꿀토끼               Locking Dance                 1
+         6 000001       꿀토끼               Soul Dance                    1
+         6 000001       꿀토끼               Poppin Dance                  1
+         6 000001       꿀토끼               Hiphop Dance                  1
+         6 000001       꿀토끼               Dab Dance                     1
+         1 000002       유레카               Soul Dance                    3
+         1 000002       유레카               B-boy Dance                   3
+         1 000002       유레카               Urban Dance                   3
+         4 000002       유레카               Hiphop Dance                  2
+
+
+
+
+
