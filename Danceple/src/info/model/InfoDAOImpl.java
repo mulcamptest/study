@@ -12,7 +12,8 @@ import dandb.TeacherVO;
 import dandb.TeamVO;
 import dandb.UserVO;
 import ibatis.QueryHandler;
-import info.model.vo.SummVO;
+import info.model.vo.ApplyTGenreVO;
+import info.model.vo.ApplyUListVO;
 
 public class InfoDAOImpl implements InfoDAO{
 
@@ -85,16 +86,49 @@ public class InfoDAOImpl implements InfoDAO{
 		SqlMapClient sqlMap = QueryHandler.getInstance();
 		return (GradeVO) sqlMap.queryForObject("info.getGradeDetail", gradeId);
 	}	
-	
-	@Override
-	public List<SummVO> getSummaryDetail(String teamid) throws Exception {
-	    SqlMapClient sqlMap = QueryHandler.getInstance();
-	    return sqlMap.queryForList("info.getSummaryDetailList", teamid);
-	}
-	
-	@Override
-	public List<SummVO> getSummaryListAll() throws Exception {
-	    SqlMapClient sqlMap = QueryHandler.getInstance();
-        return sqlMap.queryForList("info.getSummaryListAll");
-	}
+	//1
+    @Override
+    public ApplyUListVO getApplyUser(ApplyUListVO aulistVO) throws Exception {
+        SqlMapClient sqlMap = QueryHandler.getInstance();
+        return (ApplyUListVO)sqlMap.queryForObject("info.getApplyUser", aulistVO) ;
+    }   
+    //2
+    @Override
+    public List<ApplyUListVO> getApplyUserList(String teamid) throws Exception {
+        SqlMapClient sqlMap = QueryHandler.getInstance();
+        return sqlMap.queryForList("info.getApplyUserList", teamid);
+    }
+    //3
+    @Override
+    public List<ApplyUListVO> getApplyTeamGender(String teamid) throws Exception {
+        SqlMapClient sqlMap = QueryHandler.getInstance();
+        return sqlMap.queryForList("info.getApplyTeamGender",teamid);
+    }
+    
+    //4
+    @Override
+    public List<ApplyUListVO> getApplyTeamUserCount(String teamid) throws Exception {
+        SqlMapClient sqlMap = QueryHandler.getInstance();
+        return sqlMap.queryForList("info.getApplyTeamUserCount", teamid);
+    }
+    //5
+    @Override
+    public List<ApplyUListVO> getApplyAllTeamUserCount() throws Exception {
+        SqlMapClient sqlMap = QueryHandler.getInstance();
+        return sqlMap.queryForList("info.getApplyAllTeamUserCount");
+    }
+    
+    //6
+    @Override
+    public List<ApplyTGenreVO> getApplyTeamGenre(String teamid) throws Exception {
+        SqlMapClient sqlMap = QueryHandler.getInstance();
+        return sqlMap.queryForList("info.getApplyTeamGenre", teamid);
+    }
+    //7
+    @Override
+    public List<ApplyTGenreVO> getApplyAllGenre() throws Exception {
+        SqlMapClient sqlMap = QueryHandler.getInstance();
+        return sqlMap.queryForList("info.getApplyAllGenre");
+    }
+
 } //end class

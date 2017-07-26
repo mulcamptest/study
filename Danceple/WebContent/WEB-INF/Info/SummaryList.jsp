@@ -9,31 +9,36 @@
 <link rel="shortcut icon" href="../favicon-32x32.png" />
 </head>
 <body>
-	<h1>summary list</h1>
+	<h1>${msg }</h1>
+	
+	<h2>${auV1.gradename}|${auV1.rank }</h2>
+	
 	<table>
-		<c:forEach var="userlist" items="${auList }">
+		<c:forEach var="auv2" items="${auV5 }">
 			<tr>
-				<td>${userlist.teamid}</td>
-				<td>${userlist.name}</td>
-				<td>${userlist.gradeid}</td>
-				<td>${userlist.gender}</td>
-				<td>${userlist.genre1}</td>
-				<td>${userlist.genre2}</td>
-				<td>${userlist.genre3}</td>
+				<td>${auv2.count}</td>
+				<td>${auv2.rank}</td>
+				<td>${auv2.userid}</td>
+				<td>${auv2.username}</td>
+				<td>${auv2.gradeid}</td>
+				<td>${auv2.gradename}</td>
+				<td>${auv2.gender}</td>
+				<td>${auv2.teamid}</td>
+				<td>${auv2.teamname}</td>
 			</tr>
 		</c:forEach>
 	</table>
 	<h2>TEST TEST TEST TEST</h2>
 	<table>
-        <c:forEach var="alist" items="${Alllist }">
+        <c:forEach var="atv1" items="${atV2 }">
             <tr>
-                <td>${alist.teamid}</td>
-                <td>${alist.name}</td>
-                <td>${alist.gradeid}</td>
-                <td>${alist.gender}</td>
-                <td>${alist.genre1}</td>
-                <td>${alist.genre2}</td>
-                <td>${alist.genre3}</td>
+                <td>${atv1.rank}</td>
+                <td>${atv1.count}</td>
+                <td>${atv1.genreid}</td>
+                <td>${atv1.genrename}</td>
+                <td>${atv1.genreurl}</td>
+                <td>${atv1.teamid}</td>
+                <td>${atv1.teamname}</td>
             </tr>
         </c:forEach>
     </table>

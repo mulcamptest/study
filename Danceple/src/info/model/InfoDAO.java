@@ -9,7 +9,8 @@ import dandb.SeasonVO;
 import dandb.TeacherVO;
 import dandb.TeamVO;
 import dandb.UserVO;
-import info.model.vo.SummVO;
+import info.model.vo.ApplyTGenreVO;
+import info.model.vo.ApplyUListVO;
 
 public interface InfoDAO {
 
@@ -33,8 +34,15 @@ public interface InfoDAO {
 
 	GradeVO getGradeDetail(String gradeId) throws Exception;
 	
-	List<SummVO> getSummaryDetail(String teamid) throws Exception;
 
-    List<SummVO> getSummaryListAll() throws Exception;
+    ApplyUListVO getApplyUser(ApplyUListVO aulistVO) throws Exception; //1
+    List<ApplyUListVO> getApplyUserList(String teamid) throws Exception; //2
+    List<ApplyUListVO> getApplyTeamGender(String teamid) throws Exception; //3
+    
+    List<ApplyUListVO> getApplyTeamUserCount(String teamid) throws Exception; //4
+    List<ApplyUListVO> getApplyAllTeamUserCount() throws Exception; //5
+    
+    List<ApplyTGenreVO> getApplyTeamGenre(String teamid) throws Exception; //6 
+    List<ApplyTGenreVO> getApplyAllGenre() throws Exception; //7
 
 }
