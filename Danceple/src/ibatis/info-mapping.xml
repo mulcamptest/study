@@ -104,7 +104,7 @@
         RANK() OVER(PARTITION BY G.gradeid, U.gender ORDER BY U.name) AS rank,
         U.name, G.gradeid, G.gradeName, U.gender
     FROM tb_Apply A, tb_Grade G, tb_User U
-    WHERE A.teamid = '000001'
+    WHERE A.teamid = #teamid#
     AND   A.userid = U.userid
     AND   U.gradeid = G.gradeid
     ORDER BY G.gradeid, U.gender
@@ -121,18 +121,18 @@
     
     <!-- 4 -->
     <select id="getApplyTeamUserCount" parameterClass="String" resultClass="ApplyUListVO">
-    SELECT T.teamname, U.gradeid, G.gradename, 
-           U.gender, count(*) count
+    SELECT T.teamid, T.teamname, U.gradeid,
+           G.gradename, U.gender, count(*) count
     FROM   tb_apply A, tb_user U, tb_team T, tb_grade G
     WHERE  A.userid = U.userid
     AND    A.teamid=#teamid#
     AND    A.teamid=T.teamid
     AND    U.gradeid=G.gradeid
-    GROUP BY ROLLUP(T.teamname,U.gradeid,G.gradename, gender)
+    GROUP BY ROLLUP(T.teamid, T.teamname,U.gradeid,G.gradename, gender)
     </select>
     <!-- 5 -->
     <select id="getApplyAllTeamUserCount" resultClass="ApplyUListVO">
-    SELECT U.teamname, A.gradeid, G.gradename, A.gender, count(*) count
+    SELECT A.teamid, U.teamname, A.gradeid, G.gradename, A.gender, count(*) count
     FROM (
            SELECT  A.teamid, name, gradeid, gender
            FROM    tb_apply A, tb_user U
@@ -141,7 +141,7 @@
            tb_team U, tb_grade G
     WHERE A.teamid=U.teamid
     AND   A.gradeid=G.gradeid
-    GROUP BY ROLLUP(U.teamname, A.gradeid, G.gradename, A.gender)
+    GROUP BY ROLLUP(A.teamid, U.teamname, A.gradeid, G.gradename, A.gender)
     ORDER BY 1
     </select>
     

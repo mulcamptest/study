@@ -7,10 +7,13 @@ import dandb.DuescheckVO;
 import dandb.GenreVO;
 import dandb.GradeVO;
 import dandb.ProjectVO;
-import dandb.UserVO;
 import dandb.SeasonVO;
-import dandb.TeacherVO;
 import dandb.TeamVO;
+import dandb.UserVO;
+import info.model.vo.ApplyTGenreVO;
+import info.model.vo.ApplyUListVO;
+import info.model.vo.TeamSummVO;
+import info.model.vo.TeamUserListVO;
 
 public interface InfoDAO {
 
@@ -51,6 +54,10 @@ public interface InfoDAO {
     
     List<ApplyTGenreVO> getApplyTeamGenre(String teamid) throws Exception; //6 
     List<ApplyTGenreVO> getApplyAllGenre() throws Exception; //7
+
+    List<TeamSummVO> getTeamSummary(List<ApplyUListVO> auVO) throws Exception;
+
+    List<TeamUserListVO> sortUserList(List<ApplyUListVO> applyUserList) throws Exception;
 
 
 

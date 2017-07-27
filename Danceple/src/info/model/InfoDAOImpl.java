@@ -1,18 +1,23 @@
 package info.model;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import com.ibatis.sqlmap.client.SqlMapClient;
-import ibatis.QueryHandler;
 
 import dandb.ApplyVO;
 import dandb.DuescheckVO;
 import dandb.GenreVO;
 import dandb.GradeVO;
 import dandb.ProjectVO;
-import dandb.UserVO;
 import dandb.SeasonVO;
 import dandb.TeamVO;
+import dandb.UserVO;
+import ibatis.QueryHandler;
+import info.model.vo.ApplyTGenreVO;
+import info.model.vo.ApplyUListVO;
+import info.model.vo.TeamSummVO;
+import info.model.vo.TeamUserListVO;
 
 public class InfoDAOImpl implements InfoDAO{
 
@@ -104,7 +109,8 @@ public class InfoDAOImpl implements InfoDAO{
 	public GradeVO getGradeDetail(String gradeId) throws Exception {
 		SqlMapClient sqlMap = QueryHandler.getInstance();
 		return (GradeVO) sqlMap.queryForObject("info.getGradeDetail", gradeId);
-/1
+	}	
+	//1
     @Override
     public ApplyUListVO getApplyUser(ApplyUListVO aulistVO) throws Exception {
         SqlMapClient sqlMap = QueryHandler.getInstance();
@@ -148,4 +154,141 @@ public class InfoDAOImpl implements InfoDAO{
         SqlMapClient sqlMap = QueryHandler.getInstance();
         return sqlMap.queryForList("info.getApplyAllGenre");
 	}	
+    
+    @Override
+    public List<TeamSummVO> getTeamSummary(List<ApplyUListVO> auVO) throws Exception {
+        
+        TeamSummVO tsVO = new TeamSummVO();
+        List<TeamSummVO> rts = new ArrayList<TeamSummVO>();
+        
+        for(ApplyUListVO ul : auVO){
+            
+            if (ul.getTeamname() == null && ul.getTeamid() != null) {
+                TeamSummVO save = new TeamSummVO();
+                save.setTeamname(tsVO.getTeamname());
+                save.setTeamid(tsVO.getTeamid());
+                save.setOldman(tsVO.getOldman());
+                save.setOldwoman(tsVO.getOldwoman());
+                save.setNewman(tsVO.getNewman());
+                save.setNewwoman(tsVO.getNewwoman());
+                save.setTotal(tsVO.getTotal());
+//                System.out.println(save);
+                rts.add(save);
+                tsVO = new TeamSummVO();
+            }
+
+            if (ul.getTeamname() != null && ul.getGradeid() == null){
+                tsVO.setTeamname(ul.getTeamname());
+                tsVO.setTeamid(ul.getTeamid());
+                tsVO.setTotal(ul.getCount());
+            }
+            
+            try{
+                if(ul.getGradeid().equals("2")){//기존
+                    if(ul.getGender().equals("man")){
+                        tsVO.setOldman(ul.getCount());
+                    }else if(ul.getGender().equals("woman")){
+                        tsVO.setOldwoman(ul.getCount());
+                    }
+                }else if(ul.getGradeid()==null){
+                    
+                }else{ // 신규, 복귀
+                    if(ul.getGender().equals("man")){
+                        tsVO.setNewman(ul.getCount());
+                    }else if(ul.getGender().equals("woman")){
+                        tsVO.setNewwoman(ul.getCount());
+                    }
+                }
+            }catch(Exception e){                
+            }
+        }
+        
+        return rts;
+    }
+    
+    @Override
+    public List<TeamUserListVO> sortUserList(List<ApplyUListVO> aul) throws Exception {
+        
+        List<TeamUserListVO> compsort = new ArrayList<TeamUserListVO>();
+        TeamUserListVO temp = new TeamUserListVO();
+        int idx = 0, gradeid = 1, rank = 1;
+        ApplyUListVO ul=  new ApplyUListVO();
+//        System.out.println(aul);
+        
+        while(aul.isEmpty() != true){
+            if (idx >= aul.size()){
+                idx=0;
+            }
+            
+            ul = aul.get(idx);
+//            System.out.println("[I:" + idx+ "/S:" + aul.size() +"]"+ul);
+            
+            if(ul.getRank() == rank && Integer.parseInt(ul.getGradeid()) == gradeid)
+            {
+                if(ul.getGender().equals("man")){
+                    if (temp.getManrank() == 0) {
+                        temp.setGradeid(ul.getGradeid());
+                        temp.setManname(ul.getUsername());
+                        temp.setManrank(ul.getRank());
+                        aul.remove(idx);
+                        if(aul.isEmpty() == true){
+//                            System.out.println("Add & Finish!!!");
+                            compsort.add(temp);
+                        }
+                    }else{
+                        idx++;
+                    }
+                   
+                    continue;
+                }else if (ul.getGender().equals("woman")){
+                    if(temp.getWomrank() == 0){
+                        temp.setGradeid(ul.getGradeid());
+                        temp.setWomname(ul.getUsername());
+                        temp.setWomrank(ul.getRank());
+                        aul.remove(idx);
+//                        System.out.println("Add!! w");
+                        compsort.add(temp);
+                        temp = new TeamUserListVO();
+                        temp.setManrank(0);
+                        temp.setWomrank(0);
+                        rank++;
+                        idx=0;
+                    }else{
+                        idx++;
+                    }
+                    continue;
+                }
+            }/*else if(ul.getRank() != rank && Integer.parseInt(ul.getGradeid()) == gradeid)
+            {
+                System.out.println("Add!! r");
+                compsort.add(temp);
+                temp = new TeamUserListVO();
+                temp.setManrank(0);
+                temp.setWomrank(0);
+                rank++;
+                idx=0;
+                continue;
+            }*/
+            
+            if(Integer.parseInt(ul.getGradeid()) != gradeid){
+                if(temp.getManrank() != 0 || temp.getWomrank() != 0){
+//                    System.out.println("Add!! e");
+                    compsort.add(temp);
+                    temp = new TeamUserListVO();
+                    temp.setManrank(0);
+                    temp.setWomrank(0);
+                    rank++;
+                    idx=0;
+                }
+                else if(idx == 0){
+                    gradeid++;
+                    rank=1;
+                }
+                continue;
+            }
+            idx++;
+        }
+//        System.out.println("C : " + compsort);
+        return compsort;
+    }
 } //end class

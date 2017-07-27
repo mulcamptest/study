@@ -18,7 +18,7 @@
     
 <script type="text/javascript">
 function changepage(page){
-    //alert(page);
+    alert(page);
     location.href="viewinfo?page="+page;
 }
 </script>

@@ -30,13 +30,13 @@ public class ManageList extends AbstractController{
 		try {
 			List<TeamVO> teamList = infoDAO.getTeamList(); 
 			List<GenreVO> genreList = infoDAO.getGenreList();
-			List<TeacherVO> teacherList = infoDAO.getTeacherList();
+//			List<TeacherVO> teacherList = infoDAO.getTeacherList();
 			List<GradeVO> gradeList = infoDAO.getGradeList();
 			
 			mav.setViewName("/WEB-INF/menu/managepage.jsp");
 			mav.addObject("teamList", teamList);
 			mav.addObject("genreList", genreList);
-			mav.addObject("teacherList", teacherList);
+//			mav.addObject("teacherList", teacherList);
 			mav.addObject("gradeList", gradeList);
 		} catch (Exception e) {
 			e.printStackTrace();

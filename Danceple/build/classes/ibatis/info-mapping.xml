@@ -16,6 +16,8 @@
 	<typeAlias alias="UserVO" type="dandb.UserVO"/>
 	<typeAlias alias="GradeVO" type="dandb.GradeVO"/>
 	
+	<typeAlias alias="ApplyUListVO" type="info.model.vo.ApplyUListVO"/>
+	<typeAlias alias="ApplyTGenreVO" type="info.model.vo.ApplyTGenreVO"/>
 	
 	<select id="getApplyList" resultClass="ApplyVO">
 	SELECT * FROM tb_Apply
@@ -81,5 +83,119 @@
 	WHERE gradeId=#gradeId#
 	</select>
 	
-	
+	   
+    <!-- 1 -->
+    <select id="getApplyUser" parameterClass="ApplyUListVO" resultClass="ApplyUListVO">
+    SELECT rank, gradename
+    FROM(
+       SELECT
+           RANK() OVER(PARTITION BY G.gradeid, U.gender ORDER BY U.name) AS rank,
+           U.name, G.gradeid, G.gradeName, U.gender, A.userid
+       FROM tb_Apply A, tb_Grade G, tb_User U
+       WHERE   A.teamid = #teamid#
+       AND     A.userid = U.userid
+       AND     U.gradeid = G.gradeid
+       ORDER BY G.gradeid, U.gender)
+    WHERE name = #username#
+    </select>
+    <!-- 2 -->
+    <select id="getApplyUserList" parameterClass="String" resultClass="ApplyUListVO">
+    SELECT 
+        RANK() OVER(PARTITION BY G.gradeid, U.gender ORDER BY U.name) AS rank,
+        U.name, G.gradeid, G.gradeName, U.gender
+    FROM tb_Apply A, tb_Grade G, tb_User U
+    WHERE A.teamid = #teamid#
+    AND   A.userid = U.userid
+    AND   U.gradeid = G.gradeid
+    ORDER BY G.gradeid, U.gender
+    </select>
+    <!-- 3 -->
+    <select id="getApplyTeamGender" parameterClass="String" resultClass="ApplyUListVO">
+    SELECT T.teamname, gender, count(*) as count
+    FROM   tb_apply A, tb_user U, tb_team T
+    WHERE  A.userid = U.userid
+    AND    A.teamid=#teamid#
+    AND    A.teamid=T.teamid
+    GROUP BY T.teamname, gender     
+    </select>
+    
+    <!-- 4 -->
+    <select id="getApplyTeamUserCount" parameterClass="String" resultClass="ApplyUListVO">
+    SELECT T.teamid, T.teamname, U.gradeid,
+           G.gradename, U.gender, count(*) count
+    FROM   tb_apply A, tb_user U, tb_team T, tb_grade G
+    WHERE  A.userid = U.userid
+    AND    A.teamid=#teamid#
+    AND    A.teamid=T.teamid
+    AND    U.gradeid=G.gradeid
+    GROUP BY ROLLUP(T.teamid, T.teamname,U.gradeid,G.gradename, gender)
+    </select>
+    <!-- 5 -->
+    <select id="getApplyAllTeamUserCount" resultClass="ApplyUListVO">
+    SELECT A.teamid, U.teamname, A.gradeid, G.gradename, A.gender, count(*) count
+    FROM (
+           SELECT  A.teamid, name, gradeid, gender
+           FROM    tb_apply A, tb_user U
+           WHERE   A.userid = U.userid
+           ORDER   BY A.teamid) A , 
+           tb_team U, tb_grade G
+    WHERE A.teamid=U.teamid
+    AND   A.gradeid=G.gradeid
+    GROUP BY ROLLUP(A.teamid, U.teamname, A.gradeid, G.gradename, A.gender)
+    ORDER BY 1
+    </select>
+    
+    <!-- 6 -->
+    <select id="getApplyTeamGenre" parameterClass="String" resultClass="ApplyTGenreVO">
+    SELECT RANK() OVER(ORDER BY count DESC) AS rank,
+           UG.genre, G.genrename, UG.count , G.genreurl
+    FROM (
+           SELECT G.genre1 AS genre, COUNT(*) AS count
+           FROM(
+                SELECT  genre1
+                FROM    tb_apply A, tb_user U
+                WHERE   A.userid = U.userid
+                AND     A.teamid=#teamid#
+                UNION ALL
+                SELECT  genre2
+                FROM    tb_apply A, tb_user U
+                WHERE   A.userid = U.userid
+                AND     A.teamid=#teamid#
+                UNION ALL
+                SELECT  genre3
+                FROM    tb_apply A, tb_user U
+                WHERE   A.userid = U.userid
+                AND     A.teamid=#teamid#
+            ) G
+           GROUP BY genre1
+           ORDER BY count DESC) UG, tb_genre G
+    WHERE UG.genre = G.genreid
+    ORDER BY UG.count DESC
+    </select>
+    <!-- 7 -->
+    <select id="getApplyAllGenre" resultClass="ApplyTGenreVO">
+    SELECT 
+        RANK() OVER(PARTITION BY F.teamid ORDER BY F.count DESC) AS rank,
+        T.teamid, T.teamname, G.genrename, F.count
+    FROM(
+        SELECT
+            U.teamid, U.genre1 AS genre, 
+            COUNT(*) AS count
+        FROM(
+                SELECT teamid, genre1
+                FROM tb_apply A, tb_user U
+                WHERE A.userid = U.userid
+            UNION ALL
+                SELECT teamid, genre2
+                FROM tb_apply A, tb_user U
+                WHERE A.userid = U.userid
+            UNION ALL
+                SELECT teamid, genre3
+                FROM tb_apply A, tb_user U
+                WHERE A.userid = U.userid
+            ) U 
+        GROUP BY U.teamid, U.genre1) F , tb_genre G, tb_team T
+    WHERE F.genre=G.genreid
+    AND   F.teamid=T.teamid
+    </select>
 </sqlMap>
